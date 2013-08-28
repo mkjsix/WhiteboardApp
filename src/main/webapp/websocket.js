@@ -9,17 +9,29 @@ function onError(evt) {
     writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data);
 }
 
-// For testing purposes
-var output = document.getElementById("output");
-websocket.onopen = function(evt) {
-    onOpen(evt);
+websocket.onmessage = function(evt) {
+    onMessage(evt);
 };
 
+function sendText(json) {
+    console.log("sending text: " + json);
+    websocket.send(json);
+}
+
+function onMessage(evt) {
+    console.log("received: " + evt.data);
+    drawImageText(evt.data);
+}
+
+// For testing purposes
+var output = document.getElementById("output");
+websocket.onopen = function(evt) { onOpen(evt); };
+
 function writeToScreen(message) {
-    output.innerHTML += message + "<br>";
+    output.innerHTML = message;
 }
 
 function onOpen() {
-    writeToScreen("Connected to " + wsUri);
+    writeToScreen("Connected");
 }
 // End test functions

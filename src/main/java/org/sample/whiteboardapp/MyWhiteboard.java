@@ -4,6 +4,7 @@
  */
 package org.sample.whiteboardapp;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,19 +13,25 @@ import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.server.ServerEndpoint;
 import javax.websocket.Session;
+import javax.websocket.EncodeException;
 
 /**
  *
  * @author Maurizio Turatti <info@maurizioturatti.com>
  */
-@ServerEndpoint("/whiteboardendpoint")
+@ServerEndpoint(value = "/whiteboardendpoint", encoders = {FigureEncoder.class}, decoders = {FigureDecoder.class})
 public class MyWhiteboard {
 
     private static final Set<Session> peers = Collections.synchronizedSet(new HashSet<Session>());
 
     @OnMessage
-    public String onMessage(String message) {
-        return null;
+    public void broadcastFigure(Figure figure, Session session) throws IOException, EncodeException {
+        System.out.println("broadcastFigure: " + figure);
+        for (Session peer : peers) {
+            if (!peer.equals(session)) {
+                peer.getBasicRemote().sendObject(figure);
+            }
+        }
     }
 
     @OnOpen
